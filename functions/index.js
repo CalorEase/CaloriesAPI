@@ -1,3 +1,4 @@
+const functions = require('firebase-functions');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -125,8 +126,30 @@ app.get('/makanan/:id', async (req, res) => {
     }
 });
 
+// Get data makanan by name
+app.get('/makanan/nama/:name', async (req, res) => {
+    try {
+        const { name } = req.params;
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+        // Query Firestore for data with the provided name
+        const querySnapshot = await firestore.collection('makanan').where('name', '==', name).get();
+
+        if (querySnapshot.empty) {
+            return res.status(404).json({ error: 'Food item not found' });
+        }
+
+        const makanan = [];
+        querySnapshot.forEach((doc) => {
+            makanan.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        res.status(200).json(makanan);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching food item by name', details: error });
+    }
 });
+
+exports.api = functions.https.onRequest(app);
