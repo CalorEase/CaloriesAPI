@@ -127,7 +127,7 @@ app.get('/makanan/:id', async (req, res) => {
 });
 
 // Get data makanan by name
-app.get('/makanan/nama/:name', async (req, res) => {
+app.get('/makanan/:name', async (req, res) => {
     try {
         const { name } = req.params;
 
